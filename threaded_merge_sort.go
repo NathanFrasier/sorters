@@ -1,12 +1,25 @@
 package sorters
 
+import "sync"
+
 func Tmrgsort(data []int) {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go tmrgsortHelper(data,&wg)
+	wg.Wait()
+}
+
+func tmrgsortHelper(data []int, wg *sync.WaitGroup) {
+	defer wg.Done()	//call done when the method is done regardless of where the return happens
     if len(data) < 2 {
         return 
     }
     mid := len(data) / 2
-    Mrgsort(data[:mid])
-    Mrgsort(data[mid:])
+    var newWG sync.WaitGroup
+    newWG.Add(2)
+    go tmrgsortHelper(data[:mid],&newWG)
+    go tmrgsortHelper(data[mid:],&newWG)
+    newWG.Wait()
     if data[mid-1] <= data[mid] {
         return 
     }
